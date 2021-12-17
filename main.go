@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/Go-BugTracker-User-Service/db_client"
+)
 
 func main() {
-	fmt.Println("Hello World")
+	db_client.InitializeDbConnection()
 }
