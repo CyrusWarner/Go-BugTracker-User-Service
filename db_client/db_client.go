@@ -5,14 +5,16 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
-var user = os.Getenv("DB_USERNAME")
-var password = os.Getenv("DB_PASSWORD")
-var database = os.Getenv("DB_NAME")
+// var user = os.Getenv("DB_USERNAME")
+// var password = os.Getenv("DB_PASSWORD")
+// var database = os.Getenv("DB_NAME")
+var user = "cyruswarner"
+var password = "rootpassword2002"
+var database = "BugTrackerNew"
 
 var DBClient *sql.DB
 
