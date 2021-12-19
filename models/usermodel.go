@@ -3,6 +3,7 @@ package usermodel
 import (
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt" // package used to create hashes of passwords and read hashes of passwords
@@ -20,44 +21,46 @@ type UserRegister struct {
 
 var ErrUserRegistered error = errors.New("user already registered")
 
-func RegisterUser(db *sql.DB, user UserRegister) (UserRegister, error) {
+func RegisterUser(db *sql.DB, ur UserRegister) (UserRegister, error) {
 	var err error
 	var row *sql.Row
-	passwordHash, hashErr := hashPassword(user.Password)
+	passwordHash, hashErr := hashPassword(ur.Password)
 	if hashErr != nil {
-		return user, hashErr
+		return ur, hashErr
 	}
 
+	ur.Email = strings.ToLower(ur.Email)
+
 	row = db.QueryRow("SELECT * FROM Users WHERE Email=@p1",
-		user.Email,
+		ur.Email,
 	)
 
 	userLookup := UserRegister{}
 	err = row.Scan(&userLookup)
 
 	if err != sql.ErrNoRows {
-		return user, ErrUserRegistered
+		return ur, ErrUserRegistered
 	}
 
 	row = db.QueryRow("INSERT INTO Users (FirstName, LastName, Email, Password, DateJoined) OUTPUT INSERTED.* Values(@p1, @p2, @p3, @p4, @p5)",
-		user.FirstName,
-		user.LastName,
-		user.Email,
+		ur.FirstName,
+		ur.LastName,
+		ur.Email,
 		passwordHash,
 		time.Now(),
 	)
 
 	err = row.Scan(
-		&user.UserId,
-		&user.FirstName,
-		&user.LastName,
-		&user.Email,
-		&user.Password,
-		&user.EmailConfirmed,
-		&user.DateJoined,
+		&ur.UserId,
+		&ur.FirstName,
+		&ur.LastName,
+		&ur.Email,
+		&ur.Password,
+		&ur.EmailConfirmed,
+		&ur.DateJoined,
 	)
 
-	return user, err
+	return ur, err
 }
 
 func hashPassword(password string) (string, error) {
