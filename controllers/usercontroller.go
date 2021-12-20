@@ -6,21 +6,16 @@ import (
 	"strings"
 	"time"
 
+	jwt "github.com/Go-BugTracker-User-Service/jwt"
+	models "github.com/Go-BugTracker-User-Service/models"
+
 	"golang.org/x/crypto/bcrypt" // package used to create hashes of passwords and read hashes of passwords
 )
 
-type UserRegister struct {
-	UserId     int    `json:"userId"`
-	FirstName  string `json:"firstName"`
-	LastName   string `json:"lastName"`
-	Email      string `json:"email"`
-	Password   string `json:"-"` // omit the password field
-	DateJoined string `json:",omitempty"`
-}
-
 var ErrUserRegistered error = errors.New("user already registered")
+var ErrUserLogin error = errors.New("invalid login")
 
-func RegisterUser(db *sql.DB, ur UserRegister) (UserRegister, error) {
+func RegisterUser(db *sql.DB, ur models.UserRegister) (models.UserRegister, error) {
 	var err error
 	var row *sql.Row
 	passwordHash, hashErr := hashPassword(ur.Password)
@@ -34,7 +29,7 @@ func RegisterUser(db *sql.DB, ur UserRegister) (UserRegister, error) {
 		ur.Email,
 	)
 
-	userLookup := UserRegister{}
+	userLookup := models.UserRegister{}
 	err = row.Scan(&userLookup)
 
 	if err != sql.ErrNoRows {
@@ -58,6 +53,52 @@ func RegisterUser(db *sql.DB, ur UserRegister) (UserRegister, error) {
 	)
 
 	return ur, err
+}
+
+func LoginUser(db *sql.DB, ul models.UserLogin) (models.UserToken, error) {
+	row := db.QueryRow("SELECT * FROM Users WHERE Email=@p1",
+		ul.Email,
+	)
+
+	u := models.User{}
+	ut := models.UserToken{}
+
+	err := row.Scan(
+		&u.UserId,
+		&u.FirstName,
+		&u.LastName,
+		&u.Email,
+		&u.Password,
+		&u.EmailConfirmed,
+		&u.DateJoined,
+	)
+	if err != nil {
+		return ut, err
+	}
+
+	canLoginWithPassword := checkPasswordHash(ul.Password, u.Password) // Checks to see if password is correct.
+
+	if !canLoginWithPassword {
+		return ut, ErrUserLogin
+	}
+
+	utd := models.UserTokenData{
+		UserId:         u.UserId,
+		FirstName:      u.FirstName,
+		LastName:       u.LastName,
+		Email:          u.Email,
+		EmailConfirmed: u.EmailConfirmed,
+		DateJoined:     u.DateJoined,
+	}
+
+	tokenString, err := jwt.GenerateJWT(utd)
+	if err != nil {
+		return ut, err
+	}
+
+	ut = models.UserToken{UserToken: tokenString}
+
+	return ut, nil
 }
 
 func hashPassword(password string) (string, error) {
