@@ -5,21 +5,23 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/denisenkom/go-mssqldb"
+	"github.com/joho/godotenv"
 )
-
-// var user = os.Getenv("DB_USERNAME")
-// var password = os.Getenv("DB_PASSWORD")
-// var database = os.Getenv("DB_NAME")
-var user = "cyruswarner"
-var password = "rootpassword2002"
-var database = "BugTrackerNew"
 
 var DBClient *sql.DB
 
 func InitializeDbConnection() {
-	var err error
+	envErr := godotenv.Load(".env")
+	if envErr != nil {
+		log.Fatalln("could not load .env file")
+	}
+
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	database := os.Getenv("DB_NAME")
 
 	fmt.Println("Database Initilizing")
 
@@ -31,6 +33,7 @@ func InitializeDbConnection() {
 	)
 
 	// Creates the connection pool
+	var err error
 	DBClient, err = sql.Open("sqlserver", connString)
 	if err != nil {
 		log.Fatal("Error Creating Connection Pool:", err.Error())

@@ -8,7 +8,6 @@ import (
 	usercontroller "github.com/Go-BugTracker-User-Service/controllers"
 	"github.com/Go-BugTracker-User-Service/db_client"
 	models "github.com/Go-BugTracker-User-Service/models"
-
 	"github.com/gorilla/mux"
 )
 
