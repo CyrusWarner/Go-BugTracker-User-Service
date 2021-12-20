@@ -9,8 +9,10 @@ import (
 
 var mySigningKey = []byte("secret_key") // my signing key for tokens. TODO Create secret key and hide from being seen on github
 
-func GenerateJWT(tokenData models.UserTokenData) (string, error) {
+func GenerateJWT(tokenData models.UserTokenData) (models.UserToken, error) {
+	ut := models.UserToken{}
 
+	// TODO CHANGE THIS TO A WEEK LONG
 	expirationTime := time.Now().Add(time.Minute * 5).Unix() // create the expiration time for the token
 	claims := &models.Claims{                                // creates the claims struct to be passed into the NewWithClaims function
 		UserTokenData: tokenData,
@@ -24,8 +26,10 @@ func GenerateJWT(tokenData models.UserTokenData) (string, error) {
 	tokenString, err := token.SignedString(mySigningKey) // converts the token to a string and returns an error
 
 	if err != nil {
-		return "", err
+		return ut, err
 	}
 
-	return tokenString, nil
+	ut.UserToken = tokenString
+	ut.ExpirationTime = expirationTime
+	return ut, nil
 }

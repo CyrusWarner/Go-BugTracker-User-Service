@@ -61,7 +61,6 @@ func LoginUser(db *sql.DB, ul models.UserLogin) (models.UserToken, error) {
 	)
 
 	u := models.User{}
-	ut := models.UserToken{}
 
 	err := row.Scan(
 		&u.UserId,
@@ -73,13 +72,13 @@ func LoginUser(db *sql.DB, ul models.UserLogin) (models.UserToken, error) {
 		&u.DateJoined,
 	)
 	if err != nil {
-		return ut, err
+		return models.UserToken{}, err
 	}
 
 	canLoginWithPassword := checkPasswordHash(ul.Password, u.Password) // Checks to see if password is correct.
 
 	if !canLoginWithPassword {
-		return ut, ErrUserLogin
+		return models.UserToken{}, ErrUserLogin
 	}
 
 	utd := models.UserTokenData{
@@ -91,12 +90,10 @@ func LoginUser(db *sql.DB, ul models.UserLogin) (models.UserToken, error) {
 		DateJoined:     u.DateJoined,
 	}
 
-	tokenString, err := jwt.GenerateJWT(utd)
+	ut, err := jwt.GenerateJWT(utd)
 	if err != nil {
-		return ut, err
+		return models.UserToken{}, err
 	}
-
-	ut = models.UserToken{UserToken: tokenString}
 
 	return ut, nil
 }

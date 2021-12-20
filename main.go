@@ -26,7 +26,7 @@ func router() {
 	r.HandleFunc("/api/user/register", userRegisterHandler).Methods("POST")
 	r.HandleFunc("/api/user/login", userLoginHandler).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(":3000", r))
+	log.Fatal(http.ListenAndServe(":4000", r))
 }
 
 func userRegisterHandler(w http.ResponseWriter, r *http.Request) {

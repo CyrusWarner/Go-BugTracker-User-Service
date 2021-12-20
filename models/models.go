@@ -1,6 +1,8 @@
 package models
 
-import "github.com/golang-jwt/jwt"
+import (
+	"github.com/golang-jwt/jwt"
+)
 
 type UserRegister struct {
 	UserId     int    `json:"userId"`
@@ -25,16 +27,17 @@ type UserLogin struct {
 }
 
 type UserToken struct {
-	UserToken string `json:"token"`
+	UserToken      string `json:"token"`
+	ExpirationTime int64  `json:"expiration"`
 }
 
 type UserTokenData struct {
-	UserId         int
-	FirstName      string
-	LastName       string
-	Email          string
-	EmailConfirmed bool
-	DateJoined     string
+	UserId         int    `json:"userId"`
+	FirstName      string `json:"firstName"`
+	LastName       string `json:"lastName"`
+	Email          string `json:"email"`
+	EmailConfirmed bool   `json:"emailConfirmed"`
+	DateJoined     string `json:"dateJoined"`
 }
 
 type Claims struct {
