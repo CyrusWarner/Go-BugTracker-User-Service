@@ -25,7 +25,7 @@ func router() {
 	r.HandleFunc("/api/user/register", userRegisterHandler).Methods("POST")
 	r.HandleFunc("/api/user/login", userLoginHandler).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(":4000", r))
+	log.Fatal(http.ListenAndServe("0.0.0.0:4000", r)) // Allows requests coming from any domain with port 4000. No domain currently so this will be used for testing
 }
 
 func userRegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +72,7 @@ func userLoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func respondWithError(w http.ResponseWriter, statusCode int, errMessage string) {
-	respondWithJSON(w, statusCode, map[string]string{"error": errMessage})
+	respondWithJSON(w, statusCode, map[string]string{"message": errMessage})
 }
 
 func respondWithJSON(w http.ResponseWriter, statusCode int, payload interface{}) {

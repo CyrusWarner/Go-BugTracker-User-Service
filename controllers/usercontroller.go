@@ -25,12 +25,14 @@ func RegisterUser(db *sql.DB, ur models.UserRegister) (models.UserRegister, erro
 
 	ur.Email = strings.ToLower(ur.Email)
 
-	row = db.QueryRow("SELECT * FROM Users WHERE Email=@p1",
+	row = db.QueryRow("SELECT UserId FROM Users WHERE Email=@p1",
 		ur.Email,
 	)
 
 	userLookup := models.UserRegister{}
-	err = row.Scan(&userLookup)
+	err = row.Scan(
+		&userLookup.UserId,
+	)
 
 	if err != sql.ErrNoRows {
 		return ur, ErrUserRegistered
