@@ -12,8 +12,8 @@ import (
 	"golang.org/x/crypto/bcrypt" // package used to create hashes of passwords and read hashes of passwords
 )
 
-var ErrUserRegistered error = errors.New("user already registered")
-var ErrUserLogin error = errors.New("invalid login")
+var ErrUserRegistered error = errors.New("USER_ALREADY_REGISTERED")
+var ErrUserLogin error = errors.New("INVALID_LOGIN")
 
 func RegisterUser(db *sql.DB, ur models.UserRegister) (models.UserRegister, error) {
 	var err error

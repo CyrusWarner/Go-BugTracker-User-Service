@@ -34,7 +34,7 @@ func userRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body) // NewDecoder that returns a new decoder that reads from r
 	if err := decoder.Decode(&u); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid User Object")
+		respondWithError(w, http.StatusBadRequest, "INVALID_USER_OBJECT")
 		return
 	}
 
@@ -57,7 +57,7 @@ func userLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&ul); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid User Login Object")
+		respondWithError(w, http.StatusBadRequest, "INVALID_USER_LOGIN_OBJECT")
 		return
 	}
 
