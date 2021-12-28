@@ -1,47 +1,39 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
 
-	usercontroller "github.com/Go-BugTracker-User-Service/controllers"
+	uc "github.com/Go-BugTracker-User-Service/controllers"
 	"github.com/Go-BugTracker-User-Service/db_client"
-	models "github.com/Go-BugTracker-User-Service/models"
+	m "github.com/Go-BugTracker-User-Service/models"
 	"github.com/gorilla/mux"
 )
 
-func main() {
-	db_client.InitializeDbConnection()
-
-	defer db_client.DBClient.Close()
-
-	router()
-}
-
-func router() {
+func Router() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/api/user/register", userRegisterHandler).Methods("POST")
+	r.HandleFunc("/api/user/register", UserRegisterHandler).Methods("POST")
 	r.HandleFunc("/api/user/login", userLoginHandler).Methods("POST")
 
 	log.Fatal(http.ListenAndServe("0.0.0.0:4000", r)) // Allows requests coming from any domain with port 4000. No domain currently so this will be used for testing
 }
 
-func userRegisterHandler(w http.ResponseWriter, r *http.Request) {
-	u := models.UserRegister{}
+func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
+	u := m.UserRegister{}
 	var err error
 
 	decoder := json.NewDecoder(r.Body) // NewDecoder that returns a new decoder that reads from r
 	if err := decoder.Decode(&u); err != nil {
-		respondWithError(w, http.StatusBadRequest, "INVALID_USER_OBJECT")
+		respondWithError(w, http.StatusBadRequest, "INVALID_USER_REGISTER_OBJECT")
 		return
 	}
 
-	if u, err = usercontroller.RegisterUser(db_client.DBClient, u); err != nil {
+	if u, err = uc.RegisterUser(db_client.DBClient, u); err != nil {
 		switch err.Error() {
-		case usercontroller.ErrUserRegistered.Error():
-			respondWithError(w, http.StatusBadRequest, usercontroller.ErrUserRegistered.Error())
+		case uc.ErrUserRegistered.Error():
+			respondWithError(w, http.StatusBadRequest, uc.ErrUserRegistered.Error())
 			return
 		default:
 			respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -52,7 +44,7 @@ func userRegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userLoginHandler(w http.ResponseWriter, r *http.Request) {
-	ul := models.UserLogin{}
+	ul := m.UserLogin{}
 	var err error
 
 	decoder := json.NewDecoder(r.Body)
@@ -61,9 +53,9 @@ func userLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ut := models.UserToken{}
+	ut := m.UserToken{}
 
-	if ut, err = usercontroller.LoginUser(db_client.DBClient, ul); err != nil {
+	if ut, err = uc.LoginUser(db_client.DBClient, ul); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
