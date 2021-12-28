@@ -2,23 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	uc "github.com/Go-BugTracker-User-Service/controllers"
 	"github.com/Go-BugTracker-User-Service/db_client"
 	m "github.com/Go-BugTracker-User-Service/models"
-	"github.com/gorilla/mux"
 )
-
-func Router() {
-	r := mux.NewRouter()
-
-	r.HandleFunc("/api/user/register", UserRegisterHandler).Methods("POST")
-	r.HandleFunc("/api/user/login", userLoginHandler).Methods("POST")
-
-	log.Fatal(http.ListenAndServe("0.0.0.0:4000", r)) // Allows requests coming from any domain with port 4000. No domain currently so this will be used for testing
-}
 
 func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	u := m.UserRegister{}
@@ -29,6 +18,8 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "INVALID_USER_REGISTER_OBJECT")
 		return
 	}
+
+	defer r.Body.Close()
 
 	if u, err = uc.RegisterUser(db_client.DBClient, u); err != nil {
 		switch err.Error() {
@@ -43,7 +34,7 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, u)
 }
 
-func userLoginHandler(w http.ResponseWriter, r *http.Request) {
+func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 	ul := m.UserLogin{}
 	var err error
 
@@ -52,6 +43,8 @@ func userLoginHandler(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "INVALID_USER_LOGIN_OBJECT")
 		return
 	}
+
+	defer r.Body.Close()
 
 	ut := m.UserToken{}
 

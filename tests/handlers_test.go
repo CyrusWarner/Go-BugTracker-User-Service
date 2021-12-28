@@ -1,16 +1,19 @@
-package main
+package handlers_test
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	h "github.com/Go-BugTracker-User-Service/handlers"
 )
 
-func TestMain(t *testing.T) {
+func TestUserRegisterHandler(t *testing.T) {
 	req, err := http.NewRequest("POST", "/api/user/register", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	rr := executeRequest(req)
 
 	if status := rr.Code; status != http.StatusOK {
@@ -22,7 +25,7 @@ func TestMain(t *testing.T) {
 
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(UserRegisterHandler)
+	handler := http.HandlerFunc(h.UserRegisterHandler)
 	handler.ServeHTTP(rr, req)
 
 	return rr
